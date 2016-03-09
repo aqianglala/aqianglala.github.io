@@ -1,0 +1,638 @@
+---
+layout: post
+title:  "Android5.0"
+date:   2016-03-08 22:21:49
+categories: Android
+tags: Android android5.0
+---
+
+
+---
+
+## 一、ToolBar
+
+ 1. 添加
+    1. application的主题需要继承appCompat（向下兼容5.0风格）
+    2. 布局中引入toolBar
+    3. activity的主题设置取出actionbar
+    4. activity中setSupportToolbar
+ 2. 定制
+    1. 背景色：colorPrimary，也可以布局中设置backGround，值可以为：?attr/colorPrimary使用主题中定义的值
+    2. ToolBar中包含Nav Icon , Logo , Title , Sub Title , Menu Items 。可代码设置或布局中设置。
+        - 代码
+
+        {% highlight java %}
+
+        // App Logo
+        toolbar.setLogo(R.mipmap.ic_launcher);
+        // Title
+        toolbar.setTitle("App Title");
+        // Sub Title
+        toolbar.setSubtitle("Sub title");
+
+        setSupportActionBar(toolbar);
+        //Navigation Icon
+        toolbar.setNavigationIcon(R.drawable.ic_toc_white_24dp);
+        {% endhighlight %}
+        
+        - 布局
+
+        {% highlight xml %}
+
+        <android.support.v7.widget.Toolbar
+        android:id="@+id/id_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:title="title"
+        app:subtitle="sub title"
+        app:navigationIcon="@mipmap/ic_launcher"
+        app:logo="@mipmap/ic_launcher"
+        app:subtitleTextAppearance="@style/subtitleTextAppearence"
+        android:background="?attr/colorPrimary"
+        ></android.support.v7.widget.Toolbar>
+
+        {% endhighlight %}
+
+        <img src="https://cloud.githubusercontent.com/assets/13905072/12534573/85e8d7b6-c29a-11e5-9e07-96f8253bece5.png" style="width:50% "/>
+        <!-- ![此处输入图片的描述][1] -->
+    
+    3. 字体
+    关于字体的样式，可以在布局文件设置属性app:titleTextAppearance、app:subtitleTextAppearance或者代码setTitleTextAppearance、setSubTitleTextAppearance设置。
+    4. 至于item间的间距控制后面会补上
+    
+## 二、NavigationView(兼容到Android 2.1)
+
+先来看下效果
+
+<img src="http://img.blog.csdn.net/20150630141955552" style="width:50% "/>
+<!-- ![此处输入图片的描述][2] -->
+
+###使用：
+1. build.gradle中添加：
+
+{% highlight java %}
+compile 'com.android.support:design:22.2.0'
+{% endhighlight %}
+2. 布局文件中：
+
+{% highlight xml %}
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.DrawerLayout
+    android:id="@+id/id_drawer_layout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/id_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:layout_scrollFlags="scroll|enterAlways"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+
+        <TextView
+            android:id="@+id/id_tv_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="HelloWorld"
+            android:textSize="30sp"/>
+    </RelativeLayout>
+
+    <android.support.design.widget.NavigationView
+        android:id="@+id/id_nv_menu"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="left"
+        android:fitsSystemWindows="true"
+        app:headerLayout="@layout/header_just_username"
+        app:menu="@menu/menu_drawer"
+        />
+
+</android.support.v4.widget.DrawerLayout>
+{% endhighlight %}
+可以看到我们的最外层是DrawerLayout，里面一个content，一个作为drawer。我们的drawer为NavigationView。 
+注意这个view的两个属性app:headerLayout="@layout/header_just_username"和app:menu="@menu/menu_drawer"，分别代表drawer布局中的header和menuitem区域，当然你可以根据自己的情况使用。
+
+接下来看看header的布局文件和menu配置文件：
+
+{% highlight xml %}
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="192dp"
+                android:background="?attr/colorPrimaryDark"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark">
+
+
+    <TextView
+        android:id="@+id/id_link"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="16dp"
+        android:text="http://blog.csdn.net/lmj623565791"/>
+
+    <TextView
+        android:id="@+id/id_username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/id_link"
+        android:text="Zhang Hongyang"/>
+
+    <ImageView
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_above="@id/id_username"
+        android:layout_marginBottom="16dp"
+        android:src="@mipmap/icon"/>
+
+
+</RelativeLayout>
+{% endhighlight %}
+
+{% highlight xml %}
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/ic_dashboard"
+            android:title="Home"/>
+        <item
+            android:id="@+id/nav_messages"
+            android:icon="@drawable/ic_event"
+            android:title="Messages"/>
+        <item
+            android:id="@+id/nav_friends"
+            android:icon="@drawable/ic_headset"
+            android:title="Friends"/>
+        <item
+            android:id="@+id/nav_discussion"
+            android:icon="@drawable/ic_forum"
+            android:title="Discussion"/>
+    </group>
+
+    <item android:title="Sub items">
+        <menu>
+            <item
+                android:icon="@drawable/ic_dashboard"
+                android:title="Sub item 1"/>
+            <item
+                android:icon="@drawable/ic_forum"
+                android:title="Sub item 2"/>
+        </menu>
+    </item>
+
+</menu>
+{% endhighlight %}
+
+可以通过以下属性修改navigation列表项的icon颜色，背景，和文字颜色
+
+{% highlight xml %}
+app:itemIconTint=""
+app:itemBackground=""
+app:itemTextColor=""
+{% endhighlight %}
+
+2.  Activity中
+
+{% highlight java %}
+package com.imooc.testandroid;
+
+import android.os.Bundle;
+import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
+
+
+public class NavigationViewActivity extends ActionBarActivity
+{
+
+    private DrawerLayout mDrawerLayout;
+    private NavigationView mNavigationView;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_navigation_view);
+
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.id_drawer_layout);
+        mNavigationView = (NavigationView) findViewById(R.id.id_nv_menu);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.id_toolbar);
+        setSupportActionBar(toolbar);
+
+        final ActionBar ab = getSupportActionBar();
+        ab.setHomeAsUpIndicator(R.drawable.ic_menu);
+        ab.setDisplayHomeAsUpEnabled(true);
+
+        setupDrawerContent(mNavigationView);
+
+
+    }
+
+    private void setupDrawerContent(NavigationView navigationView)
+    {
+        navigationView.setNavigationItemSelectedListener(
+
+                new NavigationView.OnNavigationItemSelectedListener()
+                {
+
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem menuItem)
+                    {
+                        menuItem.setChecked(true);
+                        mDrawerLayout.closeDrawers();
+                        return true;
+                    }
+                });
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_navigation_view, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        if(item.getItemId() == android.R.id.home)
+        {
+            mDrawerLayout.openDrawer(GravityCompat.START);
+            return true ;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+}
+
+
+{% endhighlight %}
+
+不过存在一个问题，此时你如果点击Sub items里面的Sub item，如果你期望当前选中应该是Sub item，你会发现不起作用。即：选中subItem时，发现subItem的状态是没有选中的。
+
+只要将group标签中android:checkableBehavior="single"去掉，然后给每个item项添加android:checkable="true"。
+
+然后在代码中，记录上一个选中的item，将其状态设置为选中即可：
+
+{% highlight java %}
+navigationView.setNavigationItemSelectedListener(
+
+                new NavigationView.OnNavigationItemSelectedListener()
+                {
+
+                    private MenuItem mPreMenuItem;
+
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem menuItem)
+                    {
+                        if (mPreMenuItem != null) mPreMenuItem.setChecked(false);
+                        menuItem.setChecked(true);
+                        mDrawerLayout.closeDrawers();
+                        mPreMenuItem = menuItem;
+                        return true;
+                    }
+                });
+{% endhighlight %}
+对于上述NavigationView可能也会存在定制上的问题针对于各种需求，想要能解决各种问题，最好的方式就是说对于NavigationView的效果自己可以实现。即我们在主布局文件中，用一个listView替换掉NavigationView，然后在代码中添加header和adapter。
+
+上面为NavigationView添加切换按钮是通过设置ActionBar的导航图标，然后在onOptionsItemSelected中判断id是否为android.R.id.home，是的话就打开Navigation，其实还有另外一种方式，这种方式在as中新建NavigationActivity时采用的,这种方式添加的切换按钮还有动画，所以更推荐这种方式：
+
+{% highlight java %}
+ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+            this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+{% endhighlight %}
+
+而且，我们在drawerLayout和NavigationView控件中都发现了这样一个属性，android:fitsSystemWindows="true"，这个属性又有什么作用呢，在网上查了下，好像是为了防止在4.0系统时，actionBar和statusBar融合在一起的效果，设置为true就不会了。有待考证。
+
+##三、FloatingActionButton
+FloatingActionButton也是要引入以下库的哦
+ compile 'com.android.support:design:23.1.1'
+1. 布局：
+
+{% highlight xml %}
+  <android.support.design.widget.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|bottom"
+            android:src="@drawable/ic_discuss"
+            />
+{% endhighlight %}
+
+背景颜色默认取的是，theme中的colorAccent，所以你可以在style中定义colorAccent。
+rippleColor默认取的是theme中的colorControlHighlight。（按下去的颜色吧）
+我们也可以直接用过属性定义这两个的颜色：
+
+{% highlight xml %}
+app:backgroundTint="#ff87ffeb"
+app:rippleColor="#33728dff"
+
+{% endhighlight %}
+app:fabSize ：FloatingActionButton的大小，有两种赋值分别是 “mini” 和 “normal”，默认是“normal”.
+
+和立体感相关有两个属性，elevation和pressedTranslationZ，前者用户设置正常显示的阴影大小；后者是点击时显示的阴影大小
+
+综上，如果你希望自定义颜色、以及阴影大小，可以按照如下的方式(当然，颜色你也可以在theme中设置)：
+
+{% highlight xml %}
+<android.support.design.widget.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|bottom"
+            android:src="@drawable/ic_discuss"
+            app:backgroundTint="#ff87ffeb"
+            app:rippleColor="#33728dff"
+            app:elevation="6dp"
+            app:pressedTranslationZ="12dp"
+            />
+{% endhighlight %}
+
+至于点击事件，和View的点击事件一致就不说了~~
+
+2. 5.x存在的一些问题
+
+在5.x的设备上运行，你会发现一些问题（测试系统5.0）：
+
+木有阴影
+记得设置app:borderWidth="0dp"。
+
+按上述设置后，阴影出现了，但是竟然有矩形的边界（未设置margin时，可以看出）
+需要设置一个margin的值。在5.0之前，会默认就有一个外边距（不过并非是margin，只是效果相同）。
+
+so，良好的实践是：
+
+添加属性app:borderWidth="0dp"
+对于5.x设置一个合理的margin
+如下：
+
+{% highlight xml %}
+<android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        app:borderWidth="0dp"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@drawable/ic_headset" />
+{% endhighlight %}
+
+values
+
+{% highlight xml %}
+<dimen name="fab_margin">0dp</dimen>
+{% endhighlight %}
+
+values-v21
+
+{% highlight xml %}
+<dimen name="fab_margin">16dp</dimen>
+{% endhighlight %}
+## 四，TextInputLayout
+题外话：Design Support Library库吸收了8 个新的 material design 组件！最低支持 Android2.1
+
+TextInputLayout 不仅能让EditView的提示语上弹显示在EditView之上，而且还能把错误信息显示在EditView之下。
+如图：
+<img src="http://img.blog.csdn.net/20150615113747823" style="width:50% "/>
+<!-- ![此处输入图片的描述][3] -->
+
+1. XML布局代码如下：
+
+{% highlight xml %}
+ <android.support.design.widget.TextInputLayout
+        android:id="@+id/textInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/black"/>
+    </android.support.design.widget.TextInputLayout>
+{% endhighlight %}
+2. 为了达到以上效果，我们还需添加如下代码：
+
+{% highlight java %}
+final TextInputLayout  inputLayout = findView(R.id.textInput);
+        inputLayout.setHint("请输入姓名:");
+
+        EditText editText = inputLayout.getEditText();
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length()>4){
+                    inputLayout.setErrorEnabled(true);
+                    inputLayout.setError("姓名长度不能超过4个");
+                }else{
+                    inputLayout.setErrorEnabled(false);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+{% endhighlight %}
+
+###总结：
+TextInputLayout常用的方法有如下：
+
+1. setHint()：设置提示语。
+2. getEditText()：得到TextInputLayout中的EditView控件。
+3. setErrorEnabled():设置是否可以显示错误信息。
+4. setError()：设置当用户输入错误时弹出的错误信息。
+
+##五、Snackbar
+Snackbar提供了一个介于Toast和AlertDialog之间轻量级控件，它可以很方便的提供消息的提示和动作反馈。
+
+Snackbar是从整个界面的底部弹出。
+
+上图：
+<img src="http://img.blog.csdn.net/20150615115328653" style="width:50% "/>
+<!-- ![此处输入图片的描述][4] -->
+
+Snackbar的使用和Toast很类似，调用代码如下：
+
+{% highlight java %}
+final Snackbar snackbar = Snackbar.make(inputLayout,"测试弹出提示",Snackbar.LENGTH_LONG);
+                snackbar.show();
+                snackbar.setAction("取消",new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        snackbar.dismiss();
+                    }
+                });
+{% endhighlight %}
+第一个参数View 可以是当前父布局中的任何一个view对象都可以。之后的参数和Toast参数一样。Action的字体颜色默认使用系统主题中的如下颜色
+
+{% highlight xml %}
+<item name="colorAccent">#ff0000</item>
+{% endhighlight %}
+当然你可以通过代码去改变Action的字体颜色：Snackbar setActionTextColor (int color)；
+
+##六、TabLayout
+
+效果：
+<img src="https://cloud.githubusercontent.com/assets/13905072/12544901/ac85e114-c378-11e5-94a6-dbf7b5de59ae.jpg" style="width:50% "/>
+<!-- ![此处输入图片的描述][5] -->
+
+XML布局如下：
+
+{% highlight xml %}
+ <android.support.design.widget.TabLayout
+        android:id="@+id/tabs"
+    <!--Tab被选中字体的颜色-->
+        app:tabSelectedTextColor="@android:color/holo_blue_bright"
+    <!--Tab未被选中字体的颜色-->
+        app:tabTextColor="@android:color/black"
+    <!--Tab指示器下标的颜色-->
+        app:tabIndicatorColor="@android:color/holo_blue_bright"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+{% endhighlight %}
+
+TabLayout常用的方法如下：
+
+- addTab(TabLayout.Tab tab, int position, boolean setSelected) 增加选项卡到 layout 中 
+- addTab(TabLayout.Tab tab, boolean setSelected) 同上 
+- addTab(TabLayout.Tab tab) 同上 
+- getTabAt(int index) 得到选项卡 
+- getTabCount() 得到选项卡的总个数 
+- getTabGravity() 得到 tab 的 Gravity 
+- getTabMode() 得到 tab 的模式 
+- getTabTextColors() 得到 tab 中文本的颜色 
+- newTab() 新建个 tab 
+- removeAllTabs() 移除所有的 tab 
+- removeTab(TabLayout.Tab tab) 移除指定的 tab 
+- removeTabAt(int position) 移除指定位置的 tab 
+- setOnTabSelectedListener(TabLayout.OnTabSelectedListener onTabSelectedListener) 为每个 tab 增加选择监听器 
+- setScrollPosition(int position, float positionOffset, boolean updateSelectedText) 设置滚动位置 
+- setTabGravity(int gravity) 设置 Gravity 
+- setTabMode(int mode) 设置 Mode,有两种值：TabLayout.MODE_SCROLLABLE和TabLayout.MODE_FIXED分别表示当tab的内容超过屏幕宽度是否支持横向水平滑动，第一种支持滑动，第二种不支持，默认不支持水平滑动。 
+- setTabTextColors(ColorStateList textColor) 设置 tab 中文本的颜色 
+- setTabTextColors(int normalColor, int selectedColor) 设置 tab 中文本的颜色 默认 选中 
+- setTabsFromPagerAdapter(PagerAdapter adapter) 设置 PagerAdapter 
+- setupWithViewPager(ViewPager viewPager) 和 ViewPager 联动
+
+一般TabLayout都是和ViewPager共同使用才发挥它的优势，现在我们通过代码来看看以上方法的使用。
+
+{% highlight java %}
+viewPager = findView(R.id.viewPager);
+
+        tabLayout = findView(R.id.tabs);
+        List<String> tabList = new ArrayList<>();
+        tabList.add("Tab1");
+        tabList.add("Tab2");
+        tabList.add("Tab3");
+        tabLayout.setTabMode(TabLayout.MODE_FIXED);//设置tab模式，当前为系统默认模式
+        tabLayout.addTab(tabLayout.newTab().setText(tabList.get(0)));//添加tab选项卡
+        tabLayout.addTab(tabLayout.newTab().setText(tabList.get(1)));
+        tabLayout.addTab(tabLayout.newTab().setText(tabList.get(2)));
+
+        List<Fragment> fragmentList = new ArrayList<>();
+        for (int i = 0; i < tabList.size(); i++) {
+            Fragment f1 = new TabFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString("content", "http://blog.csdn.net/feiduclear_up \n CSDN 废墟的树");
+            f1.setArguments(bundle);
+            fragmentList.add(f1);
+        }
+
+        TabFragmentAdapter fragmentAdapter = new TabFragmentAdapter(getSupportFragmentManager(), fragmentList, tabList);
+        viewPager.setAdapter(fragmentAdapter);//给ViewPager设置适配器
+        tabLayout.setupWithViewPager(viewPager);//将TabLayout和ViewPager关联起来。
+        tabLayout.setTabsFromPagerAdapter(fragmentAdapter);//给Tabs设置适配器
+{% endhighlight %}
+来看看以上代码的TabFragmentAdapter和TabFragment实现如下：
+
+TabFragmentAdapter
+
+{% highlight java %}
+public class TabFragmentAdapter extends FragmentStatePagerAdapter {
+
+    private List<Fragment> mFragments;
+    private List<String> mTitles;
+
+    public TabFragmentAdapter(FragmentManager fm, List<Fragment> fragments, List<String> titles) {
+        super(fm);
+        mFragments = fragments;
+        mTitles = titles;
+    }
+
+    @Override
+    public Fragment getItem(int position) {
+        return mFragments.get(position);
+    }
+
+    @Override
+    public int getCount() {
+        return mFragments.size();
+    }
+
+    @Override
+    public CharSequence getPageTitle(int position) {
+        return mTitles.get(position);
+    }
+}
+{% endhighlight %}
+TabFragment
+
+{% highlight java %}
+public class TabFragment extends Fragment {
+
+    private String content;
+    private View view;
+
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        view = inflater.inflate(R.layout.item, container,false);
+        return view;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        content = getArguments().getString("content");
+        TextView tvContent = (TextView) view.findViewById(R.id.tv_tab_content);
+        tvContent.setText(content + "");
+    }
+}
+{% endhighlight %}
+
+注意 ：有这么一种情况，当Tabs中的内容超过了手机屏幕的宽度时，Tabs选项卡中的tab为什么不支持水平滑动？其实TabLayout是支持水平滑动的，只需要你在代码中添加如下一行即可：
+
+{% highlight xml %}
+tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);//设置tab模式
+{% endhighlight %}
+
+  [1]: https://cloud.githubusercontent.com/assets/13905072/12534573/85e8d7b6-c29a-11e5-9e07-96f8253bece5.png
+  [2]: http://img.blog.csdn.net/20150630141955552
+  [3]: http://img.blog.csdn.net/20150615113747823
+  [4]: http://img.blog.csdn.net/20150615115328653
+  [5]: https://cloud.githubusercontent.com/assets/13905072/12544901/ac85e114-c378-11e5-94a6-dbf7b5de59ae.jpg

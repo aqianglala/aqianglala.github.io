@@ -1,0 +1,240 @@
+---
+layout: post
+date:   2015-03-08 22:21:49
+title:   OKHttp的使用
+categories: Android
+tags: Android OKHttp的使用
+---
+
+
+---
+
+详细了解（Hongyang大神的博客）：
+
+- [Android OkHttp完全解析 是时候来了解OkHttp了][1]
+- [Android 一个改善的okHttp封装库][2]
+
+源码地址：[https://github.com/hongyangAndroid/okhttp-utils][3]
+
+目前，该封装库志支持：
+
+- 一般的get请求
+- 一般的post请求
+- 基于Http的文件上传
+- 文件下载
+- 上传下载的进度回调
+- 加载图片
+- 支持请求回调，直接返回对象、对象集合
+- 支持session的保持
+- 支持自签名网站https的访问，提供方法设置下证书就行
+- 支持取消某个请求
+
+1，引入：
+
+{% highlight java %}
+compile 'com.zhy:okhttputils:2.0.0'
+{% endhighlight %}
+
+2，配置
+
+（1）全局配置
+
+可以在Application中，通过：
+
+{% highlight java %}
+OkHttpClient client = 
+OkHttpUtils.getInstance().getOkHttpClient();
+{% endhighlight %}
+
+然后调用client的各种set方法。例如：
+
+{% highlight java %}
+client.setConnectTimeout(100000, TimeUnit.MILLISECONDS);
+{% endhighlight %}
+
+（2）为单个请求设置超时
+
+比如涉及到文件的需要设置读写等待时间多一点。
+
+{% highlight java %}
+OkHttpUtils
+    .get()//
+    .url(url)//
+    .tag(this)//
+    .build()//
+    .connTimeOut(20000)
+    .readTimeOut(20000)
+    .writeTimeOut(20000)
+    .execute()
+{% endhighlight %}
+
+调用build()之后，可以随即设置各种timeOut.
+
+（3）取消单个请求
+
+{% highlight java %}
+ RequestCall call = OkHttpUtils.get().url(url).build();
+ call.cancel();
+{% endhighlight %}
+
+（4）根据tag取消请求
+
+目前对于支持的方法都添加了最后一个参数Object tag，取消则通过OkHttpUtils.cancelTag(tag)执行。
+
+例如：在Activity中，当Activity销毁取消请求：
+
+{% highlight java %}
+OkHttpUtils
+    .get()//
+    .url(url)//
+    .tag(this)//
+    .build()//
+
+@Override
+protected void onDestroy()
+{
+    super.onDestroy();
+    //可以取消同一个tag的
+    OkHttpUtils.cancelTag(this);//取消以Activity.this作为tag的请求
+{% endhighlight %}
+
+比如，当前Activity页面所有的请求以Activity对象作为tag，可以在onDestory里面统一取消。
+
+3，基本用法
+
+目前基本的用法格式为：
+
+{% highlight java %}
+OkHttpUtils
+    .get()
+    .url(url)
+    .addParams("username", "hyman")
+    .addParams("password", "123")
+    .build()
+    .execute(callback);
+{% endhighlight %}
+
+通过链式去根据自己的需要添加各种参数，最后调用execute(callback)进行执行，传入callback则代表是异步。如果单纯的execute()则代表同步的方法调用。
+
+下面简单看一下，全部的用法：
+
+（1）GET请求
+
+{% highlight java %}
+String url = "http://www.csdn.net/";
+OkHttpUtils
+    .get()
+    .url(url)
+    .addParams("username", "hyman")
+    .addParams("password", "123")
+    .build()
+    .execute(new StringCallback()
+            {
+                @Override
+                public void onError(Request request, Exception e)
+                {
+
+                }
+
+                @Override
+                public void onResponse(String response)
+                {
+
+                }
+            });
+{% endhighlight %}
+
+（2）POST请求
+
+{% highlight java %}
+ OkHttpUtils
+    .post()
+    .url(url)
+    .addParams("username", "hyman")
+    .addParams("password", "123")
+    .build()
+    .execute(callback);
+{% endhighlight %}
+
+（3）Post String
+
+{% highlight java %}
+OkHttpUtils
+    .postString()
+    .url(url)
+    .content(new Gson().toJson(new User("zhy", "123")))
+    .build()
+    .execute(new MyStringCallback());   
+{% endhighlight %}
+
+（4）显示图片(测试过，没有做缓存。。。。)
+
+{% highlight java %}
+OkHttpUtils
+    .get()//
+    .url(url)//
+    .build()//
+    .execute(new BitmapCallback()
+    {
+        @Override
+        public void onError(Request request, Exception e)
+        {
+            mTv.setText("onError:" + e.getMessage());
+        }
+
+        @Override
+        public void onResponse(Bitmap bitmap)
+        {
+            mImageView.setImageBitmap(bitmap);
+        }
+    });
+{% endhighlight %}
+
+（5）下载文件
+
+{% highlight java %}
+OkHttpUtils//
+    .get()//
+    .url(url)//
+    .build()//
+    .execute(new FileCallBack(Environment.getExternalStorageDirectory().getAbsolutePath(), "gson-2.2.1.jar")//
+    {
+        @Override
+        public void inProgress(float progress)
+        {
+            mProgressBar.setProgress((int) (100 * progress));
+        }
+
+        @Override
+        public void onError(Request request, Exception e)
+        {
+            Log.e(TAG, "onError :" + e.getMessage());
+        }
+
+        @Override
+        public void onResponse(File file)
+        {
+            Log.e(TAG, "onResponse :" + file.getAbsolutePath());
+        }
+    });
+{% endhighlight %}
+
+4，对于上传下载的回调
+
+{% highlight java %}
+new Callback<?>()
+{
+    //...
+    @Override
+    public void inProgress(float progress)
+    {
+       //use progress: 0 ~ 1
+    }
+}
+{% endhighlight %}
+
+对于传入的callback有个inProgress方法，需要拿到进度直接复写该方法即可。
+
+  [1]: http://blog.csdn.net/lmj623565791/article/details/47911083
+  [2]: http://blog.csdn.net/lmj623565791/article/details/49734867
+  [3]: https://github.com/hongyangAndroid/okhttp-utils

@@ -1,0 +1,45 @@
+---
+layout: post
+date:   2015-03-08 22:21:49
+title:   自动释放内存！Facebook推出强大Android图片库Fresco
+categories: Android
+tags: Android 自动释放内存！Facebook推出强大Android图片库Fresco
+---
+
+
+标签（空格分隔）： Android
+
+---
+
+github地址：[https://github.com/facebook/fresco][1]
+中文教程：[http://fresco-cn.org/docs/getting-started.html#_][2]
+
+**特性**
+
+ - 拥有三级缓存
+ - Fresco在显示方面是用了Drawees，可以显示占位符，直到图片加载完成。
+ - 内存
+当图片从屏幕上消失时，会自动释放图片所占的内存。在Android 4.x及以下版本，Fresco将图片放置在Android内存的一个特殊位置。这可以确保当图像不在屏幕上显示时，可以自动释放它们所占的内存。
+ - Streaming：
+ Web上的渐进式（Progressive）JPEG图片已经存在多年，打开文件过程中，会先显示整个图片的模糊轮廓，随着扫描次数的增加，图片变得越来越清晰。这种格式可以说是网络较慢情况下的救星，通过图片的轮廓知道正在加载的图片大概是什么。
+
+ - 动画：
+ 动画GIF和WebP应该是应用的难点，每一帧都是一个大型的位图，而每个动画都是一系列的帧。Fresco则负责加载和处理这些帧及管理它们的内存。
+
+ - Drawing
+
+Fresco在显示方面使用了Drawees，Fresco的Drawees能够显示占位符，直到图片已加载，并自动显示到图像到达时：
+ 
+ **使用**
+ 
+ 1. 引入库
+ 2. 添加访问网络的权限
+ 3. 在application中初始化Fresco.initialize(context);
+ 4. 布局用SimpleDraweeView替代imageView
+ 5. 代码中findviewById
+ 6. setImageUri
+
+具体看中文教程，非常详细。
+ 
+  [1]: https://github.com/facebook/fresco
+  [2]: http://fresco-cn.org/docs/getting-started.html#_
